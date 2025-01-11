@@ -17,7 +17,7 @@ internal class Program
 [KurtosisColumn]
 public class TaskVsValueTaskBenchmark
 {
-    private const int Iterations = 10_000_000;
+    private const int Iterations = 100_000;
 
     [Benchmark]
     public async Task MeasureTask()
@@ -92,6 +92,32 @@ public class TaskVsValueTaskBenchmark
         for (int i = 0; i < Iterations; i++)
         {
             tasks[i] = Task.Run(ValueTaskMethodWithoutAwait);
+        }
+
+        return Task.WhenAll(tasks);
+    }
+
+    [Benchmark]
+    public Task MeasureTask_ArrayFactoryWithoutAwait()
+    {
+        Task[] tasks = new Task[Iterations];
+
+        for (int i = 0; i < Iterations; i++)
+        {
+            tasks[i] = Task.Factory.StartNew(TaskMethodWithoutAwait);
+        }
+
+        return Task.WhenAll(tasks);
+    }
+
+    [Benchmark]
+    public Task MeasureValueTask_ArrayFactoryWithoutAwait()
+    {
+        Task[] tasks = new Task[Iterations];
+
+        for (int i = 0; i < Iterations; i++)
+        {
+            tasks[i] = Task.Factory.StartNew(ValueTaskMethodWithoutAwait);
         }
 
         return Task.WhenAll(tasks);
